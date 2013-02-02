@@ -528,19 +528,19 @@ if {access -d /dev/fd} {
 	fn %readfrom var input cmd {
 		let (fd = <=%newfd; result = ) {
 			local ($var = /dev/fd/$fd)
-			%pipe $input 1 $fd { result = <=$cmd }
-			result $result
+			result = <={%pipe $input 1 $fd $cmd}
+			result $result(2)
 		}
 	}
 	fn %writeto var output cmd {
 		let (fd = <=%newfd; result = ) {
 			local ($var = /dev/fd/$fd)
 			%open $fd /dev/null {
-				%pipe $cmd $fd 0 {
-					%close $fd { result = <=$output }
-				}
+				result = <={%pipe $cmd $fd 0 {
+					%close $fd $output
+				}}
 			}
-			result $result
+			result $result(1)
 		}
 	}
 }
