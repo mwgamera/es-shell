@@ -26,13 +26,6 @@
  *		if this is on, the time builtin is included.  by default, it is
  *		on, but feel free to turn it off.  see also USE_WAIT3.
  *
- *	HAVE_DEV_FD
- *		turn this on if your system supports /dev/fd for >{} and <{}
- *
- *	DEVFD_PATH
- *		(used only if DEVFD is on.)  a format string for print() to
- *		a file path for opening file descriptor n.
- *
  *	GCALWAYS
  *		if this is on, the a collection is done after every allocation.
  *		this stress-tests the garbage collector.  any missed Ref()
@@ -285,10 +278,6 @@
 
 #ifndef	BUILTIN_TIME
 #define	BUILTIN_TIME		1
-#endif
-
-#ifndef	DEVFD_PATH
-#define	DEVFD_PATH		"/dev/fd/%d"
 #endif
 
 #ifndef	GCALWAYS

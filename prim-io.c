@@ -244,88 +244,6 @@ PRIM(pipe) {
 	RefReturn(result);
 }
 
-#if HAVE_DEV_FD
-PRIM(readfrom) {
-	int pid, p[2], status;
-	Push push;
-
-	caller = "$&readfrom";
-	if (length(list) != 3)
-		argcount("%readfrom var input cmd");
-	Ref(List *, lp, list);
-	Ref(char *, var, getstr(lp->term));
-	lp = lp->next;
-	Ref(Term *, input, lp->term);
-	lp = lp->next;
-	Ref(Term *, cmd, lp->term);
-
-	if ((pid = pipefork(p, NULL)) == 0) {
-		close(p[0]);
-		mvfd(p[1], 1);
-		exit(exitstatus(eval1(input, evalflags &~ eval_inchild)));
-	}
-
-	close(p[1]);
-	lp = mklist(mkstr(str(DEVFD_PATH, p[0])), NULL);
-	varpush(&push, var, lp);
-
-	ExceptionHandler
-		lp = eval1(cmd, evalflags);
-	CatchException (e)
-		close(p[0]);
-		ewaitfor(pid);
-		throw(e);
-	EndExceptionHandler
-
-	close(p[0]);
-	status = ewaitfor(pid);
-	printstatus(0, status);
-	varpop(&push);
-	RefEnd3(cmd, input, var);
-	RefReturn(lp);
-}
-
-PRIM(writeto) {
-	int pid, p[2], status;
-	Push push;
-
-	caller = "$&writeto";
-	if (length(list) != 3)
-		argcount("%writeto var output cmd");
-	Ref(List *, lp, list);
-	Ref(char *, var, getstr(lp->term));
-	lp = lp->next;
-	Ref(Term *, output, lp->term);
-	lp = lp->next;
-	Ref(Term *, cmd, lp->term);
-
-	if ((pid = pipefork(p, NULL)) == 0) {
-		close(p[1]);
-		mvfd(p[0], 0);
-		exit(exitstatus(eval1(output, evalflags &~ eval_inchild)));
-	}
-
-	close(p[0]);
-	lp = mklist(mkstr(str(DEVFD_PATH, p[1])), NULL);
-	varpush(&push, var, lp);
-
-	ExceptionHandler
-		lp = eval1(cmd, evalflags);
-	CatchException (e)
-		close(p[1]);
-		ewaitfor(pid);
-		throw(e);
-	EndExceptionHandler
-
-	close(p[1]);
-	status = ewaitfor(pid);
-	printstatus(0, status);
-	varpop(&push);
-	RefEnd3(cmd, output, var);
-	RefReturn(lp);
-}
-#endif
-
 #define	BUFSIZE	4096
 
 static List *bqinput(const char *sep, int fd) {
@@ -427,10 +345,6 @@ extern Dict *initprims_io(Dict *primdict) {
 	X(backquote);
 	X(newfd);
 	X(here);
-#if HAVE_DEV_FD
-	X(readfrom);
-	X(writeto);
-#endif
 	X(read);
 	return primdict;
 }

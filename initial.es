@@ -522,6 +522,29 @@ if {~ <=$&primitives writeto} {
 	}
 }
 
+#	The "creative use of %newfd and %pipe" for /dev/fd without builtins.
+
+if {access -d /dev/fd} {
+	fn %readfrom var input cmd {
+		let (fd = <=%newfd; result = ) {
+			local ($var = /dev/fd/$fd)
+			result = <={%pipe $input 1 $fd $cmd}
+			result $result(2)
+		}
+	}
+	fn %writeto var output cmd {
+		let (fd = <=%newfd; result = ) {
+			local ($var = /dev/fd/$fd)
+			%open $fd /dev/null {
+				result = <={%pipe $cmd $fd 0 {
+					%close $fd $output
+				}}
+			}
+			result $result(1)
+		}
+	}
+}
+
 #	These versions of %readfrom and %writeto (contributed by Pete Ho)
 #	support the use of System V FIFO files (aka, named pipes) on systems
 #	that have them.  They seem to work pretty well.  The authors still
