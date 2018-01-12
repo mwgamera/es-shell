@@ -1,3 +1,12 @@
+es (0.9.1~klg1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * Add to /etc/shells.
+  * Merge native IO substitution for /dev/fd
+  * Include minor bugfixes.
+
+ -- Kacper Gutowski <klg@mmax.one.pl>  Fri, 12 Jan 2018 15:14:25 +0100
+
 es (0.90+git20141123) UNRELEASED; urgency=low
 
   * New upstream release with later bug fixes.
